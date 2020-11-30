@@ -1,8 +1,9 @@
 <template>
-  <swiper>
-    <swiper-item v-for="item in banners"
+  <swiper ref="swiper"
+          v-if="banners.length">
+    <swiper-item v-for="(item,index) in banners"
                  :key="item.id">
-      <a href="item.link">
+      <a :href="item.link">
         <img :src="item.image"
              alt="">
       </a>
@@ -17,9 +18,11 @@ export default {
   props: {
     banners: {
       tpye: Array,
-      default () {
-        return []
-      }
+    }
+  },
+  data () {
+    return {
+      isLoaded: false
     }
   },
   components: {
