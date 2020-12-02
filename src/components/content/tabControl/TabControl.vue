@@ -1,37 +1,39 @@
 <template>
   <div class="tab-control">
-    <div class="tab-control-item"
-         v-for="(item, index) in titles"
-         :class="{active: currentIndex === index}"
-         @click="itemClick(index)">
-      <span>{{item}}</span>
+    <div
+      class="tab-control-item"
+      v-for="(item, index) in titles"
+      :class="{ active: currentIndex === index }"
+      @click="itemClick(index)"
+    >
+      <span>{{ item }}</span>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'TabControl',
+  name: "TabControl",
   props: {
     titles: {
       type: Array,
-      default () {
-        return []
+      default() {
+        return [];
       }
     }
   },
-  data () {
+  data() {
     return {
       currentIndex: 0
-    }
+    };
   },
   methods: {
-    itemClick (index) {
+    itemClick(index) {
       this.currentIndex = index;
-      this.$emit('tabClick', index)
+      this.$emit("tabClick", index);
     }
   }
-}
+};
 </script>
 
 <style>

@@ -1,30 +1,29 @@
 <template>
   <div class="goods-item">
-    <img :src="goodsItem.show.img"
-         alt="">
+    <img :src="goodsItem.show.img" alt="" />
     <div class="goods-info">
-      <p>{{goodsItem.title}}</p>
-      <span class="price">{{goodsItem.price}}</span>
-      <span class="collect">{{goodsItem.cfav}}</span>
+      <p>{{ goodsItem.title }}</p>
+      <span class="price">{{ goodsItem.price }}</span>
+      <span class="collect">{{ goodsItem.cfav }}</span>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'GoodsListItem',
+  name: "GoodsListItem",
   props: {
     goodsItem: {
       type: Object,
-      default () {
-        return {}
+      default() {
+        return {};
       }
     }
   }
-}
+};
 </script>
 
-<style>
+<style scoped>
 .goods-item {
   padding-bottom: 40px;
   position: relative;

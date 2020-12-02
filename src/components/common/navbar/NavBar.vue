@@ -9,17 +9,16 @@
     <div class="right">
       <slot name="right"></slot>
     </div>
-
   </div>
 </template>
 
 <script>
 export default {
-  name: 'NavBar'
-}
+  name: "NavBar"
+};
 </script>
 
-<style>
+<style scoped>
 .nav-bar {
   display: flex;
   line-height: 44px;

@@ -1,7 +1,6 @@
 <template>
   <!-- 所有的item都展示一个图片一个文字 -->
-  <div class="tab-bar-item"
-       @click="itemClick">
+  <div class="tab-bar-item" @click="itemClick">
     <div v-if="!isActive">
       <slot name="item-icon"></slot>
     </div>
@@ -20,41 +19,40 @@
 
 <script>
 export default {
-  name: 'TabBarItem',
+  name: "TabBarItem",
   props: {
     path: String,
     activeColor: {
       type: String,
-      default: 'red'
+      default: "red"
     }
   },
-  data () {
+  data() {
     return {
       //isActive: false,
-
-    }
+    };
   },
   computed: {
-    isActive () {
+    isActive() {
       //  /home -> item1(/home) = true
       //  /home -> item1(/category) = false
       //  /home -> item1(/cart) = false
       //  /home -> item1(/profile) = false
-      return this.$route.path.indexOf(this.path) !== -1
+      return this.$route.path.indexOf(this.path) !== -1;
     },
-    activeStyle () {
-      return this.isActive ? { color: this.activeColor } : {}
+    activeStyle() {
+      return this.isActive ? { color: this.activeColor } : {};
     }
   },
   methods: {
-    itemClick () {
-      this.$router.replace(this.path)
+    itemClick() {
+      this.$router.replace(this.path);
     }
   }
-}
+};
 </script>
 
-<style>
+<style scoped>
 .tab-bar-item {
   flex: 1;
   text-align: center;
