@@ -3,18 +3,36 @@
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
-    <scroll class="content" ref="scroll">
-      <home-swiper ref="hSwiper" :banners="banners" />
+    <tab-control
+      :titles="['流行', '新款', '精选']"
+      @tabClick="tabClick"
+      ref="tabControl1"
+      class="tab-control"
+      v-show="isTabFixed"
+    />
+    <scroll
+      class="content"
+      ref="scroll"
+      :probe-type="3"
+      @scroll="contentScroll"
+      :pull-up-load="true"
+      @pullingUp="loadMore"
+    >
+      <home-swiper
+        ref="hSwiper"
+        :banners="banners"
+        @swiperImageLoad="swiperImageLoad"
+      />
       <recommend-view :recommends="recommends" />
       <feature-view />
       <tab-control
-        class="tab-control"
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
+        ref="tabControl2"
       />
       <goods-list :goods="showGoods" />
     </scroll>
-    <back-top @click.native="backClick" />
+    <back-top @click.native="backClick" v-show="isShowBackTop" />
   </div>
 </template>
 
@@ -27,9 +45,10 @@ import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/content/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
 import Scroll from "components/common/scroll/Scroll";
-import BackTop from "components/content/backTop/BackTop";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
+import { debounce } from "common/utils.js";
+import { itemListenerMixin, backTopMixin } from "common/mixin";
 
 export default {
   name: "Home",
@@ -40,9 +59,9 @@ export default {
     FeatureView,
     TabControl,
     GoodsList,
-    Scroll,
-    BackTop
+    Scroll
   },
+  mixins: [itemListenerMixin, backTopMixin],
   data() {
     return {
       banners: [],
@@ -52,13 +71,32 @@ export default {
         new: { page: 0, list: [] },
         sell: { page: 0, list: [] }
       },
-      currentType: "pop"
+      currentType: "pop",
+
+      tabOffsetTop: 0,
+      isTabFixed: false,
+      saveY: 0
     };
   },
   computed: {
     showGoods() {
       return this.goods[this.currentType].list;
     }
+  },
+  destroyed() {
+    console.log("home destroyed");
+  },
+  activated() {
+    this.$refs.scroll.scrollTo(0, this.saveY, 0);
+
+    this.$refs.scroll.refresh();
+  },
+  deactivated() {
+    //1.保存Y值
+    this.saveY = this.$refs.scroll.getScrollY();
+
+    //2.取消全局事件的监听
+    this.$bus.$off("itemImgLoad", this.itemImgListener);
   },
   created() {
     //1.请求多个数据
@@ -69,8 +107,18 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
+  mounted() {
+    // //1.图片加载完成的事件监听
+    // const refresh = debounce(this.$refs.scroll.refresh, 50);
+    // //对监听的事件进行保存
+    // this.itemImgListener = () => {
+    //   refresh();
+    //};
+    //this.$bus.$on("itemImageLoad", this.itemImgListener);
+  },
   methods: {
     //事件监听相关的方法
+
     tabClick(index) {
       switch (index) {
         case 0:
@@ -83,10 +131,22 @@ export default {
           this.currentType = "sell";
           break;
       }
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
 
-    backClick() {
-      this.$refs.scroll.scrollTo(0, 0);
+    contentScroll(position) {
+      //1.判断BackTop是否显示
+      this.listenShowBackTop(position);
+
+      //2.决定tabControl是否吸顶(position:fixed)
+      this.isTabFixed = -position.y > this.tabOffsetTop;
+    },
+    loadMore() {
+      this.getHomeGoods(this.currentType);
+    },
+    swiperImageLoad() {
+      this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
     },
 
     // 网络请求相关的方法
@@ -101,6 +161,9 @@ export default {
       getHomeGoods(type, page).then(res => {
         this.goods[type].list.push(...res.data.list);
         this.goods[type].page += 1;
+
+        //完成上拉加载更多
+        this.$refs.scroll.finishPullUp();
       });
     }
   }
@@ -123,11 +186,7 @@ export default {
   left: 0;
   z-index: 9;
 }
-.tab-control {
-  position: sticky;
-  top: 44px;
-  z-index: 9;
-}
+
 .content {
   /* height: 300px; */
   overflow: hidden;
@@ -137,13 +196,14 @@ export default {
   right: 0;
   left: 0;
 }
+
+.tab-control {
+  position: relative;
+  z-index: 9;
+}
 /* .content {
   height: calc(100%-93px);
   overflow: hidden;
   margin-top: 50px;
 } */
 </style>
-
-// let totalNums = [] // const nums1 = [20,11,22] // const nums2 = [1111,22,333]
-// // for(let n of nums1){ // // totalNums.push(n) // // } //
-totalNums.push(...nums1)
